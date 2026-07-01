@@ -4,14 +4,14 @@ services:
     container_name: image_postgres
     restart: unless-stopped
     environment:
-      POSTGRES_DB: image_app
-      POSTGRES_USER: image_user
-      POSTGRES_PASSWORD: image_password
+      POSTGRES_DB: bookshelf
+      POSTGRES_USER: ${DBUSER}
+      POSTGRES_PASSWORD: ${DBPASSWORD}
     ports:
       - "5432:5432"
     volumes:
       - postgres_data:/var/lib/postgresql/data
-      - ./init.sql:/docker-entrypoint-initdb.d/init.sql:ro
+      - ./database/init.sql:/docker-entrypoint-initdb.d/init.sql:ro
 
 volumes:
   postgres_data:

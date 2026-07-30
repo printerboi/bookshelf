@@ -1,2 +1,12 @@
+
+# Misc
 .env
+
+
+# Backend stuff
 .venv
+
+# Frontend stuff
+dist/
+node_modules/
+.next/

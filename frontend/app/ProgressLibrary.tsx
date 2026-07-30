@@ -1,9 +1,10 @@
 "use client";
 
 import { useEffect, useMemo, useRef, useState } from "react";
-import { catalog } from "./catalog";
 import { ShelfEngine, type ShelfMode } from "./ShelfEngine";
 import { siteConfig } from "./site-config";
+import { getBooks } from "./bookGetter";
+import { CatalogBook } from "./catalog";
 
 function ArrowIcon({ direction }: { direction: "left" | "right" }) {
   return (
@@ -21,6 +22,8 @@ export function ProgressLibrary() {
   const [mode, setMode] = useState<ShelfMode>("browse");
   const [ready, setReady] = useState(false);
   const [status, setStatus] = useState("Preparing the complete catalog");
+
+  const [catalog, setCatalog] = useState<CatalogBook[]>(getBooks())
 
   const activeBook = catalog[activeIndex];
   const selectedBook = useMemo(
@@ -84,8 +87,8 @@ export function ProgressLibrary() {
         </div>
         <div className="header-actions">
           <div className="edition-mark">
-            <span>{catalog.length} VOLUMES</span>
-            <span>01 CONTINUOUS SHELF</span>
+            <span>{catalog.length} Books</span>
+            <span>Reads in 2026</span>
           </div>
         </div>
       </header>
@@ -100,15 +103,15 @@ export function ProgressLibrary() {
           <span className="eyebrow__line" />
           <span>{String(catalog.length).padStart(2, "0")}</span>
         </p>
-        <h1>{activeBook.shortTitle}</h1>
-        <p className="browse-caption__author">{activeBook.author}</p>
+        <h1>{activeBook?.title}</h1>
+        <p className="browse-caption__author">{activeBook?.author}</p>
         <button
           type="button"
           className="inspect-button"
           data-testid="inspect-active"
           disabled={isFocused}
           onClick={() => engineRef.current?.focusBook(activeIndex)}
-          aria-label={`Inspect ${activeBook.title}`}
+          aria-label={`Inspect ${activeBook?.title}`}
         >
           <span>Inspect volume</span>
           <span aria-hidden="true">↗</span>
@@ -189,37 +192,15 @@ export function ProgressLibrary() {
               <h2>{selectedBook.title}</h2>
               <p className="book-details__author">{selectedBook.author}</p>
               <p className="book-details__description">
-                {selectedBook.description}
+                
               </p>
-
-              <blockquote>
-                <p>“{selectedBook.quote}”</p>
-                <cite>{selectedBook.quoteBy}</cite>
-              </blockquote>
 
               <dl>
                 <div>
-                  <dt>Format</dt>
-                  <dd>{selectedBook.format}</dd>
-                </div>
-                <div>
-                  <dt>Availability</dt>
-                  <dd>{selectedBook.availability}</dd>
+                  <dt>Pages</dt>
+                  <dd>{selectedBook.pages}</dd>
                 </div>
               </dl>
-
-              <a
-                className="official-link"
-                data-testid="official-link"
-                href={selectedBook.url}
-                target="_blank"
-                rel="noreferrer"
-              >
-                <span>
-                  {selectedBook.linkLabel ?? siteConfig.bookLinkLabel}
-                </span>
-                <span aria-hidden="true">↗</span>
-              </a>
             </div>
 
             <div className="focus-controls" aria-label="Inspection controls">
@@ -259,9 +240,9 @@ export function ProgressLibrary() {
       <p className="independent-note">{siteConfig.independentNote}</p>
 
       <div className="sr-only" aria-live="polite">
-        {isFocused && selectedBook
+        {isFocused && selectedBook && activeBook
           ? `Inspecting ${selectedBook.title} by ${selectedBook.author}.`
-          : `Selected ${activeBook.title} by ${activeBook.author}.`}
+          : `Selected ${activeBook?.title} by ${activeBook?.author}.`}
       </div>
     </main>
   );

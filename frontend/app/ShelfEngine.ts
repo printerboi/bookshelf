@@ -88,6 +88,10 @@ const inspectionIdlePitch = THREE.MathUtils.degToRad(0.28);
 const inspectionIdleYaw = THREE.MathUtils.degToRad(0.48);
 const inspectionIdleRoll = THREE.MathUtils.degToRad(0.22);
 
+const _DEFAULTHEIGHT = 2.2;
+const _DEFAULTTHICKNESS = 0.23;
+const _DEFAULTINK = "#212121";
+
 // Downloaded Stripe OBJ basis: X = thickness, Y = up/height, Z = width,
 // and the front cover is on +X. Rotating -90° maps that cover to world +Z,
 // toward the browse camera.
@@ -339,20 +343,20 @@ export class ShelfEngine {
     const gap = 0.045;
 
     this.booksData.forEach((book, index) => {
-      cursor += book.thickness * 0.5;
+      cursor += _DEFAULTTHICKNESS * 0.5;
       const runtime = this.createBook(book, index, cursor);
       this.runtimeBooks.push(runtime);
       this.shelfGroup.add(runtime.slot);
       if (book.coverImage) {
         void this.loadCustomCover(runtime, book.coverImage);
       }
-      cursor += book.thickness * 0.5 + gap;
+      cursor += _DEFAULTTHICKNESS * 0.5 + gap;
     });
 
     this.motionLayout = createMotionLayout(
       this.runtimeBooks.map((book) => ({
         width: book.width,
-        thickness: book.data.thickness,
+        thickness: _DEFAULTTHICKNESS,
       })),
     );
     this.runtimeBooks.forEach((book, index) => {
@@ -395,10 +399,10 @@ export class ShelfEngine {
 
   private createBook(book: CatalogBook, index: number, x: number): RuntimeBook {
     const width = 1.31 + ((index % 5) - 2) * 0.018;
-    const depth = book.thickness;
+    const depth = _DEFAULTTHICKNESS;
     const slot = new THREE.Group();
     slot.name = `bookSlot:${book.id}`;
-    slot.position.set(x, shelfTop + book.height * 0.5, 0.04);
+    slot.position.set(x, shelfTop + _DEFAULTHEIGHT * 0.5, 0.04);
 
     const content = new THREE.Group();
     content.name = `bookPresentation:${book.id}`;
@@ -425,9 +429,9 @@ export class ShelfEngine {
       roughness: 0.78,
       metalness: 0,
       sheen: 0.36,
-      sheenColor: new THREE.Color(book.ink),
+      sheenColor: new THREE.Color(_DEFAULTINK),
       sheenRoughness: 0.82,
-      clearcoat: book.motif === "gather" ? 0.12 : 0.03,
+      clearcoat: 0.12,
       clearcoatRoughness: 0.7,
     });
     const paperMaterial = new THREE.MeshStandardMaterial({
@@ -439,7 +443,7 @@ export class ShelfEngine {
     const pageBlock = new THREE.Mesh(
       new RoundedBoxGeometry(
         width - 0.075,
-        book.height - 0.105,
+        _DEFAULTHEIGHT - 0.105,
         Math.max(0.08, depth - 0.052),
         3,
         0.018,
@@ -453,7 +457,7 @@ export class ShelfEngine {
 
     const boardGeometry = new RoundedBoxGeometry(
       width,
-      book.height,
+      _DEFAULTHEIGHT,
       0.034,
       4,
       0.025,
@@ -473,7 +477,7 @@ export class ShelfEngine {
     physical.add(backBoard);
 
     const spine = new THREE.Mesh(
-      new RoundedBoxGeometry(0.055, book.height - 0.01, depth + 0.012, 3, 0.018),
+      new RoundedBoxGeometry(0.055, _DEFAULTHEIGHT - 0.01, depth + 0.012, 3, 0.018),
       boardMaterial,
     );
     spine.name = "spine";
@@ -482,17 +486,17 @@ export class ShelfEngine {
     physical.add(spine);
 
     const headbandMaterial = new THREE.MeshPhysicalMaterial({
-      color: book.accent,
+      color: "#000000",
       roughness: 0.62,
       metalness: 0.2,
     });
     const headbandGeometry = new THREE.CylinderGeometry(0.017, 0.017, width - 0.1, 10);
     headbandGeometry.rotateZ(Math.PI / 2);
     const headbandTop = new THREE.Mesh(headbandGeometry, headbandMaterial);
-    headbandTop.position.set(0, book.height * 0.5 - 0.045, 0);
+    headbandTop.position.set(0, _DEFAULTHEIGHT * 0.5 - 0.045, 0);
     physical.add(headbandTop);
     const headbandBottom = headbandTop.clone();
-    headbandBottom.position.y = -book.height * 0.5 + 0.045;
+    headbandBottom.position.y = -_DEFAULTHEIGHT * 0.5 + 0.045;
     physical.add(headbandBottom);
 
     const frontTexture = toTexture(createFrontCover(book), this.renderer);
@@ -505,12 +509,12 @@ export class ShelfEngine {
       THREE.PlaneGeometry,
       THREE.MeshPhysicalMaterial
     >(
-      new THREE.PlaneGeometry(width - 0.065, book.height - 0.065),
+      new THREE.PlaneGeometry(width - 0.065, _DEFAULTHEIGHT - 0.065),
       new THREE.MeshPhysicalMaterial({
         map: frontTexture,
         roughness: 0.66,
         metalness: 0.02,
-        clearcoat: book.motif === "gather" ? 0.18 : 0.05,
+        clearcoat: 0.18,
         clearcoatRoughness: 0.48,
       }),
     );
@@ -519,7 +523,7 @@ export class ShelfEngine {
     physical.add(frontSurface);
 
     const titleDecal = new THREE.Mesh(
-      new THREE.PlaneGeometry(width - 0.065, book.height - 0.065),
+      new THREE.PlaneGeometry(width - 0.065, _DEFAULTHEIGHT - 0.065),
       new THREE.MeshBasicMaterial({
         map: titleTexture,
         transparent: true,
@@ -535,7 +539,7 @@ export class ShelfEngine {
     inspectionIdle.add(titleDecal);
 
     const backSurface = new THREE.Mesh(
-      new THREE.PlaneGeometry(width - 0.065, book.height - 0.065),
+      new THREE.PlaneGeometry(width - 0.065, _DEFAULTHEIGHT - 0.065),
       new THREE.MeshStandardMaterial({
         map: backTexture,
         roughness: 0.72,
@@ -547,7 +551,7 @@ export class ShelfEngine {
     physical.add(backSurface);
 
     const spineSurface = new THREE.Mesh(
-      new THREE.PlaneGeometry(depth - 0.02, book.height - 0.04),
+      new THREE.PlaneGeometry(depth - 0.02, _DEFAULTHEIGHT - 0.04),
       new THREE.MeshPhysicalMaterial({
         map: spineTexture,
         roughness: 0.68,
@@ -560,19 +564,9 @@ export class ShelfEngine {
     physical.add(spineSurface);
 
     let livingMaterial: THREE.ShaderMaterial | undefined;
-    if (book.living) {
-      livingMaterial = createLivingMaterial(book.accent);
-      const shimmer = new THREE.Mesh(
-        new THREE.PlaneGeometry(width - 0.07, book.height - 0.07),
-        livingMaterial,
-      );
-      shimmer.name = "livingCoverShimmer";
-      shimmer.position.z = depth * 0.5 + 0.034;
-      inspectionIdle.add(shimmer);
-    }
 
     const pickProxy = new THREE.Mesh(
-      new THREE.BoxGeometry(width, book.height, depth + 0.07),
+      new THREE.BoxGeometry(width, _DEFAULTHEIGHT, depth + 0.07),
       new THREE.MeshBasicMaterial({
         transparent: true,
         opacity: 0,
@@ -776,7 +770,7 @@ export class ShelfEngine {
       yaw: pose.yaw,
       scale: pose.scale,
       width: book.width,
-      thickness: book.data.thickness,
+      thickness: _DEFAULTTHICKNESS,
     };
   }
 
@@ -833,9 +827,6 @@ export class ShelfEngine {
       book.targetHover = 0;
     });
     this.callbacks.onMode(this.mode, index);
-    this.callbacks.onStatus(
-      `Opening ${this.runtimeBooks[index].data.shortTitle}`,
-    );
   }
 
   private updateBrowseMotion(delta: number) {
@@ -979,7 +970,7 @@ export class ShelfEngine {
         this.callbacks.onMode(this.mode, this.selectedIndex);
         if (this.selectedIndex !== null) {
           this.callbacks.onStatus(
-            `Inspecting ${this.runtimeBooks[this.selectedIndex].data.shortTitle}`,
+            `Inspecting ${this.runtimeBooks[this.selectedIndex].data.title}`,
           );
         }
       }
@@ -1357,15 +1348,15 @@ export class ShelfEngine {
 
       const targetWidth = 1.31 + ((runtime.index % 5) - 2) * 0.018;
       root.scale.set(
-        runtime.data.thickness / this.stripeGeometrySize.x,
-        runtime.data.height / this.stripeGeometrySize.y,
+        _DEFAULTTHICKNESS / this.stripeGeometrySize.x,
+        _DEFAULTHEIGHT / this.stripeGeometrySize.y,
         targetWidth / this.stripeGeometrySize.z,
       );
       root.updateMatrixWorld(true);
       root.userData.displaySize = {
         width: targetWidth,
-        height: runtime.data.height,
-        thickness: runtime.data.thickness,
+        height: _DEFAULTHEIGHT,
+        thickness: _DEFAULTTHICKNESS,
       };
       root.userData.coverFacing = "+Z";
 
@@ -1402,7 +1393,7 @@ export class ShelfEngine {
     this.pendingFocusIndex = next;
     this.callbacks.onActiveIndex(next);
     this.callbacks.onStatus(
-      `Preparing ${this.runtimeBooks[next].data.shortTitle}`,
+      `Preparing ${this.runtimeBooks[next].data.title}`,
     );
     if (
       this.browseMotionPhase === "idle" &&

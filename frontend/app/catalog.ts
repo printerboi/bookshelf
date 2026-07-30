@@ -24,16 +24,12 @@ export type CatalogBook = {
   title: string;
   author: string;
   publisher: string;
+  genre: string;
   year: number;
   pages: number;
   book_finished_at: number;
   book_rating: number;
   cover: string;
-  /**
-   * Optional browser URL for contributor-owned front-cover art. Put local
-   * images under `public/books/<id>/` and use a URL such as
-   * `/books/<id>/cover.webp`.
-   */
   coverImage?: string;
 };
 

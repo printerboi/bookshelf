@@ -33,8 +33,26 @@ class DBConnector:
             with connector.cursor() as db_cursor:
                 db_cursor.execute(
                     """
-                    SELECT *
-                    FROM books
+                    SELECT
+                    book.*,
+                    publisher.publisher_name AS publisher,
+                    genre.genre_name AS genre,
+                    (
+                        SELECT STRING_AGG(
+                            author.author_name,
+                            ', '
+                            ORDER BY author.author_name
+                        )
+                        FROM public.books_x_authors AS book_author
+                        JOIN public.authors AS author
+                            ON author.author_id = book_author.author_id
+                        WHERE book_author.book_isbn = book.isbn
+                    ) AS authors
+                FROM public.books AS book
+                LEFT JOIN public.publishers AS publisher
+                    ON publisher.publisher_id = book.book_publisher_id
+                LEFT JOIN public.genres AS genre
+                    ON genre.genre_id = book.book_genre_id;
                     """
                 )
 
@@ -46,8 +64,9 @@ class DBConnector:
                         Book(
                             book_db["isbn"],
                             book_db["book_title"],
-                            [Author(1, "test")],
-                            Publisher(1, "testpub"),
+                            book_db["authors"],
+                            book_db["publisher"],
+                            book_db["genre"],
                             book_db["book_year"],
                             book_db["book_pages"],
                             book_db["book_finished_at"],

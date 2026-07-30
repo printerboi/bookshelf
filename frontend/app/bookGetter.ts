@@ -1,35 +1,31 @@
+import axios from "axios";
 import { CatalogBook } from "./catalog";
 
+export async function getBooks(): Promise<CatalogBook[]> {
+    let books: CatalogBook[] = [];
+    const resp = await axios.get("/backend/books");
 
-export function getBooks(): CatalogBook[] {
-
-
-    return [
-        {
-            id: "9783257228007",
-            title: "Das Parfum",
-            author: "Patrik Süßkind",
-            publisher: "Diogenes",
-            year: 1985,
-            pages: 320,
-            book_finished_at: 213123123,
-            book_rating: 5,
-            coverImage: "/backend/cover/9783257228007",
-            cover: "#FFFFFF"
-        },
-        {
-            id: "9780241398869",
-            title: "The man from the future",
-            author: "Ananyo Bhattacharya",
-            publisher: "Penguin",
-            year: 2021,
-            pages: 354,
-            book_finished_at: 3123154124,
-            book_rating: 4,
-            coverImage: "/backend/cover/9780241398869",
-            cover: "#FFFFFF"
+    if (resp.status == 200) {
+        if (resp.data) {
+            resp.data.forEach((element: { id: any; title: any; authors: any; publisher: any; genre: any; year: any; pages: any; book_finished_at: any; book_rating: any; }) => {
+                console.log(element);
+                books.push({
+                    id: element.id,
+                    title: element.title,
+                    author: element.authors,
+                    publisher: element.publisher,
+                    genre: element.genre,
+                    year: element.year,
+                    pages: element.pages,
+                    book_finished_at: element.book_finished_at,
+                    book_rating: element.book_rating,
+                    coverImage: `/backend/cover/${element.id}`,
+                    cover: "#FFFFFF"
+                },)
+            });
         }
-    ]
+    }
 
 
+    return books;
 }

@@ -1,5 +1,5 @@
-import { ProgressLibrary } from "./ProgressLibrary";
+import { ProgressLibraryClient } from "./ProgressLibraryClient";
 
 export default function Home() {
-  return <ProgressLibrary />;
+  return <ProgressLibraryClient />;
 }

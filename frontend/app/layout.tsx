@@ -4,11 +4,10 @@ import "@fontsource-variable/inter";
 import "./globals.css";
 import { siteConfig } from "./site-config";
 
-const socialImage =
-  "https://play.mint.gg/experience-assets/complete-shelf/social-card.webp";
+const socialImage = "";
 
 export const metadata: Metadata = {
-  metadataBase: new URL("https://play.mint.gg/complete-shelf"),
+  metadataBase: new URL("https://maximiliankrebs.com"),
   title: siteConfig.title,
   description: siteConfig.description,
   applicationName: siteConfig.applicationName,

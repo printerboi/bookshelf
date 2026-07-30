@@ -7,9 +7,6 @@ db = DBConnector("localhost", 5432, "bookshelf", "max", "fjafoqjo3412048")
 @app.get("/books")
 async def getAllBooks():
     books = db.getBooks()
-
-    covers = db.getCovers()
-
     return books
 
 @app.get(
@@ -31,3 +28,12 @@ async def getCoverForBook(isbn):
         content=bytes(cover.image),
         media_type="image/png"
     )
+
+@app.get("/color/{isbn}")
+async def getColorsForBook(isbn):
+    cover = db.getCover(isbn)
+    
+    return {
+        "main": cover.getMainColor(),
+        "text": cover.getTextColor(),
+    }

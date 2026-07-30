@@ -5,6 +5,7 @@
 
 # Backend stuff
 .venv
+__pycache__/
 
 # Frontend stuff
 dist/

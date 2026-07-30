@@ -14,8 +14,20 @@ export function getBooks(): CatalogBook[] {
             pages: 320,
             book_finished_at: 213123123,
             book_rating: 5,
-            coverImage: "https://craftmasterpaints.de/storage/images/image?remote=https%3A%2F%2Fcraftmasterpaints.de%2FWebRoot%2FStore22%2FShops%2F22688b70-97ca-4f58-8934-25a94365fe60%2F5BEE%2FF993%2FB665%2F33DA%2F1C84%2F0A48%2F355E%2FE718%2FBright_Red.jpg&shop=22688b70-97ca-4f58-8934-25a94365fe60&width=600&height=2560",
-            cover: "#FF00FF"
+            coverImage: "/backend/cover/9783257228007",
+            cover: "#FFFFFF"
+        },
+        {
+            id: "9780241398869",
+            title: "The man from the future",
+            author: "Ananyo Bhattacharya",
+            publisher: "Penguin",
+            year: 2021,
+            pages: 354,
+            book_finished_at: 3123154124,
+            book_rating: 4,
+            coverImage: "/backend/cover/9780241398869",
+            cover: "#FFFFFF"
         }
     ]
 

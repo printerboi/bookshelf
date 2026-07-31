@@ -1,8 +1,34 @@
 from fastapi import FastAPI, Response
 from util.dbConnector import DBConnector
+import os
+
+# ===================== Env handling ======================
+
+dbhost = os.getenv("DB_HOST")
+dbport = os.getenv("DB_PORT")
+dbname = os.getenv("DB_NAME")
+dbuser = os.getenv("DB_USER")
+dbpassword = os.getenv("DB_PASSWORD")
+
+if dbhost is None:
+    raise RuntimeError("DB_HOST is missing. Define the environment variable DB_HOST")
+
+if dbport is None:
+    raise RuntimeError("DB_PORT is missing. Define the environment variable DB_PORT")
+
+if dbname is None:
+    raise RuntimeError("DB_NAME is missing. Define the environment variable DB_NAME")
+
+if dbuser is None:
+    raise RuntimeError("DB_USER is missing. Define the environment variable DB_USER")
+
+if dbpassword is None:
+    raise RuntimeError("DB_PASSWORD is missing. Define the environment variable DB_PASSWORD")
+
+# ===========================================================
 
 app = FastAPI()
-db = DBConnector("localhost", 5432, "bookshelf", "max", "fjafoqjo3412048")
+db = DBConnector(dbhost, dbport, dbname, dbuser, dbpassword)
 
 @app.get("/books")
 async def getAllBooks():

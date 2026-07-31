@@ -30,9 +30,9 @@ if dbpassword is None:
 app = FastAPI()
 db = DBConnector(dbhost, dbport, dbname, dbuser, dbpassword)
 
-@app.get("/books")
-async def getAllBooks():
-    books = db.getBooks()
+@app.get("/books/{cat}")
+async def getAllBooks(cat):
+    books = db.getBooks(cat)
     return books
 
 @app.get(

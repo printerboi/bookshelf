@@ -26,58 +26,110 @@ class DBConnector:
             row_factory=dict_row,
         )
     
-    def getBooks(self, id: str = ""):
-        if id == "":
-            connector = self.connect()
+    def _getCatQuery(self, cat: int):
+        # Reads in 2026
+        if cat == "year":
+            return """
+            SELECT
+                book.*,
+                publisher.publisher_name AS publisher,
+                genre.genre_name AS genre,
+                (
+                    SELECT STRING_AGG(
+                        author.author_name,
+                        ', '
+                        ORDER BY author.author_name
+                    )
+                    FROM public.books_x_authors AS book_author
+                    JOIN public.authors AS author
+                        ON author.author_id = book_author.author_id
+                    WHERE book_author.book_isbn = book.isbn
+                ) AS authors
+            FROM public.books AS book
+            LEFT JOIN public.publishers AS publisher
+                ON publisher.publisher_id = book.book_publisher_id
+            LEFT JOIN public.genres AS genre
+                ON genre.genre_id = book.book_genre_id
+            WHERE book.book_finished_at >= TIMESTAMP '2026-01-01 00:00:00'
+            AND book.book_finished_at < TIMESTAMP '2027-01-01 00:00:00';
+            """
+        # Books in the Pipeline
+        if cat == "pipeline":
+            return """
+                SELECT
+                book.*,
+                publisher.publisher_name AS publisher,
+                genre.genre_name AS genre,
+                (
+                    SELECT STRING_AGG(
+                        author.author_name,
+                        ', '
+                        ORDER BY author.author_name
+                    )
+                    FROM public.books_x_authors AS book_author
+                    JOIN public.authors AS author
+                        ON author.author_id = book_author.author_id
+                    WHERE book_author.book_isbn = book.isbn
+                ) AS authors
+            FROM public.books AS book
+            LEFT JOIN public.publishers AS publisher
+                ON publisher.publisher_id = book.book_publisher_id
+            LEFT JOIN public.genres AS genre
+                ON genre.genre_id = book.book_genre_id
+            WHERE book.book_created_at >= TIMESTAMP '2026-01-01 00:00:00'
+            AND book.book_created_at < TIMESTAMP '2027-01-01 00:00:00';
+            """
+        else:
+            return """
+            SELECT
+                book.*,
+                publisher.publisher_name AS publisher,
+                genre.genre_name AS genre,
+                (
+                    SELECT STRING_AGG(
+                        author.author_name,
+                        ', '
+                        ORDER BY author.author_name
+                    )
+                    FROM public.books_x_authors AS book_author
+                    JOIN public.authors AS author
+                        ON author.author_id = book_author.author_id
+                    WHERE book_author.book_isbn = book.isbn
+                ) AS authors
+            FROM public.books AS book
+            LEFT JOIN public.publishers AS publisher
+                ON publisher.publisher_id = book.book_publisher_id
+            LEFT JOIN public.genres AS genre
+                ON genre.genre_id = book.book_genre_id;
+            """;
+    
+    def getBooks(self, cat = "year"):
+        connector = self.connect()
 
-            with connector.cursor() as db_cursor:
-                db_cursor.execute(
-                    """
-                    SELECT
-                    book.*,
-                    publisher.publisher_name AS publisher,
-                    genre.genre_name AS genre,
-                    (
-                        SELECT STRING_AGG(
-                            author.author_name,
-                            ', '
-                            ORDER BY author.author_name
-                        )
-                        FROM public.books_x_authors AS book_author
-                        JOIN public.authors AS author
-                            ON author.author_id = book_author.author_id
-                        WHERE book_author.book_isbn = book.isbn
-                    ) AS authors
-                FROM public.books AS book
-                LEFT JOIN public.publishers AS publisher
-                    ON publisher.publisher_id = book.book_publisher_id
-                LEFT JOIN public.genres AS genre
-                    ON genre.genre_id = book.book_genre_id;
-                    """
+        with connector.cursor() as db_cursor:
+            db_cursor.execute(
+                self._getCatQuery(cat)
+            )
+
+            books_in_db = db_cursor.fetchall()
+            books: list[Book] = []
+
+            for book_db in books_in_db:
+                books.append(
+                    Book(
+                        book_db["isbn"],
+                        book_db["book_title"],
+                        book_db["authors"],
+                        book_db["publisher"],
+                        book_db["genre"],
+                        book_db["book_year"],
+                        book_db["book_pages"],
+                        book_db["book_finished_at"],
+                        book_db["book_rating"],
+                    )
                 )
 
-                books_in_db = db_cursor.fetchall()
-                books: list[Book] = []
-
-                for book_db in books_in_db:
-                    books.append(
-                        Book(
-                            book_db["isbn"],
-                            book_db["book_title"],
-                            book_db["authors"],
-                            book_db["publisher"],
-                            book_db["genre"],
-                            book_db["book_year"],
-                            book_db["book_pages"],
-                            book_db["book_finished_at"],
-                            book_db["book_rating"],
-                        )
-                    )
-
-                return books
-        
-        else:
-            return []
+            return books
         
     def getCover(self, id: str):
         connector = self.connect()

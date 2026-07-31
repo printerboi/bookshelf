@@ -25,6 +25,8 @@ export function ProgressLibrary() {
   const [status, setStatus] = useState("Preparing the complete catalog");
   const [catalog, setCatalog] = useState<CatalogBook[]>([]);
 
+  const [selectedCatalog, setSelectedCatalog] = useState<number>(1);
+
   const activeBook = catalog[activeIndex] ?? null;
   const selectedBook = selectedIndex === null ? null : catalog[selectedIndex] ?? null;
 
@@ -32,36 +34,42 @@ export function ProgressLibrary() {
   const hasBooks = catalog.length > 0;
   const browseControlsAreDisabled = !ready || !hasBooks || isFocused;
 
+  async function loadBooks(id: number): Promise<void> {
+    try {
+      const loadedBooks = await getBooks(id);
+
+      setCatalog(loadedBooks);
+      setActiveIndex(0);
+      setSelectedIndex(null);
+      setMode("browse");
+
+      if (loadedBooks.length === 0) {
+        setStatus("No books found");
+      }
+      
+    } catch (error) {
+      console.error("Failed to load books:", error);
+      setStatus("Failed to load the catalog");
+    }
+  }
+
+  const isElementActive = (id: number) => {
+    if (selectedCatalog == id) {
+      return "collection-element-active";
+    }
+
+    return "collection-element";
+  }
+
+  const loadCatalog = (id: number) => {
+    setSelectedCatalog(id);
+    loadBooks(id);
+  }
+
   useEffect(() => {
     let cancelled = false;
 
-    async function loadBooks(): Promise<void> {
-      try {
-        const loadedBooks = await getBooks();
-
-        if (cancelled) {
-          return;
-        }
-
-        setCatalog(loadedBooks);
-        setActiveIndex(0);
-        setSelectedIndex(null);
-        setMode("browse");
-
-        if (loadedBooks.length === 0) {
-          setStatus("No books found");
-        }
-      } catch (error) {
-        if (cancelled) {
-          return;
-        }
-
-        console.error("Failed to load books:", error);
-        setStatus("Failed to load the catalog");
-      }
-    }
-
-    void loadBooks();
+    void loadBooks(1);
 
     return () => {
       cancelled = true;
@@ -128,6 +136,7 @@ export function ProgressLibrary() {
         isFocused ? "is-focused" : "is-browsing"
       }`}
     >
+
       <canvas
         ref={canvasRef}
         className="shelf-canvas"
@@ -144,6 +153,13 @@ export function ProgressLibrary() {
           <span>{siteConfig.collectionName}</span>
         </div>
 
+        <div className="collection-selection">
+          <div className="collection-entries">
+            <span className={isElementActive(1)} onClick={() => loadCatalog(1)}>Pipeline</span>
+            <span className={isElementActive(0)} onClick={() => loadCatalog(0)}>Reads in 2026</span>
+          </div>
+        </div>
+
         <div className="header-actions">
           <div className="edition-mark">
             <span>{catalog.length} Books</span>
@@ -153,6 +169,7 @@ export function ProgressLibrary() {
       </header>
 
       <section className="browse-caption" aria-hidden={isFocused} data-testid="browse-caption">
+        
         <p className="eyebrow">
           <span>{hasBooks ? String(activeIndex + 1).padStart(2, "0") : "00"}</span>
 

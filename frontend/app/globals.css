@@ -148,6 +148,7 @@ canvas:focus-visible {
   pointer-events: auto;
 }
 
+
 .browse-caption {
   position: absolute;
   z-index: 16;
@@ -1062,4 +1063,33 @@ canvas:focus-visible {
     transition-duration: 1ms !important;
     transition-delay: 0ms !important;
   }
+}
+
+
+.collection-entries {
+  display: flex;
+  gap: 20px;
+  justify-items: end;
+  color: var(--ink);
+  font-size: 9px;
+  font-weight: 560;
+  letter-spacing: 0.17em;
+  line-height: 1;
+}
+
+.collection-selection {
+  display: flex;
+  gap: 24px;
+  align-items: flex-start;
+  pointer-events: auto;
+
+  width: 15%;
+}
+
+.collection-element:hover{
+  cursor: pointer;
+}
+
+.collection-element-active {
+  text-decoration: underline;
 }

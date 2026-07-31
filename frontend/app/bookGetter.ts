@@ -1,9 +1,21 @@
 import axios from "axios";
 import { CatalogBook } from "./catalog";
 
-export async function getBooks(): Promise<CatalogBook[]> {
+
+function getCatName(id: number) {
+    switch(id) {
+        case 0:
+            return "year";
+        case 1:
+            return "pipeline";
+        default:
+            return "year";
+    }
+}
+
+export async function getBooks(id: number): Promise<CatalogBook[]> {
     let books: CatalogBook[] = [];
-    const resp = await axios.get("/backend/books");
+    const resp = await axios.get(`/backend/books/${getCatName(id)}`);
 
     if (resp.status == 200) {
         if (resp.data) {

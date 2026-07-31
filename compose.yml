@@ -31,6 +31,19 @@ services:
     restart: unless-stopped
     networks:
       - bookshelf_network
+
+  frontend:
+    build:
+      context: frontend
+      dockerfile: Dockerfile
+    container_name: frontend
+    environment:
+      backend_host: backend
+    ports:
+      - "3000:3000"
+    restart: unless-stopped
+    networks:
+      - bookshelf_network
     
 networks:
   bookshelf_network:

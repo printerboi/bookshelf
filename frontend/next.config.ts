@@ -1,8 +1,9 @@
 import type { NextConfig } from "next";
 
 const nextConfig: NextConfig = {
-  distDir: "dist",
+  distDir: ".next",
   trailingSlash: true,
+  output: "standalone",
   images: {
     unoptimized: true,
   },
@@ -10,7 +11,7 @@ const nextConfig: NextConfig = {
     return [
       {
         source: "/backend/:path*",
-        destination: "http://localhost:8000/:path*",
+        destination: "http://backend:8000/:path*",
       },
     ];
   },
